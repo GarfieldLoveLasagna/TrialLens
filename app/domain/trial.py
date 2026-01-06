@@ -5,6 +5,7 @@ from datetime import date
 
 class TrialLocation(BaseModel):
     facility: Optional[str]
+    status: Optional[str]
     city: Optional[str]
     state: Optional[str]
     country: Optional[str]
@@ -22,6 +23,7 @@ class TrialOutcome(BaseModel):
 
 class Trial(BaseModel):
     nct_id: str
+    url: str
     brief_title: str
     official_title: Optional[str]
     conditions: List[str]
@@ -46,3 +48,16 @@ class Trial(BaseModel):
     contacts: Optional[List[TrialContact]] = None
     lead_sponsor: Optional[str] = None
     collaborators: Optional[List[str]] = None
+
+class TrialCard(BaseModel):
+    nct_id: str
+    url: str
+    brief_title: str
+    conditions: List[str]
+    status: Optional[str] = None
+    phase: Optional[str] = None
+    study_type: Optional[str] = None
+    lead_sponsor: Optional[str] = None
+    last_update_posted: Optional[date] = None
+    locations: Optional[List["TrialLocation"]] = None
+    location_count: Optional[int] = None

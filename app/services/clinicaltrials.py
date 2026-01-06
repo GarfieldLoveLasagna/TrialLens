@@ -3,26 +3,50 @@ import requests
 #using request as clintrials is fingerprinting httpx
 from datetime import date
 from typing import Any, Dict, List, Optional
-from app.domain.trial import Trial, TrialLocation, TrialContact, TrialOutcome
+from app.domain.trial import Trial, TrialCard, TrialLocation, TrialContact, TrialOutcome
 
-BASE_URL = "https://clinicaltrials.gov/api/v2/studies"
+BASE_API_URL = "https://clinicaltrials.gov/api/v2/studies"
+BASE_STUDY_URL = "https://clinicaltrials.gov/study/"
 
 def search_trials_raw(condition: str, limit: int = 5) -> Dict[str, Any]:
     """
-    Return raw ClinicalTrials.gov trials payload
+    Search trials from ClinicalTrials.gov by condition
     """
     params = {"query.cond": condition, "pageSize": limit}
-    resp = requests.get(BASE_URL, params=params, timeout=20)
+    resp = requests.get(BASE_API_URL, params=params, timeout=20)
     resp.raise_for_status()
     return resp.json()
 
 def search_trials(condition: str, limit: int = 5) -> List[Trial]:
     """
-    Call raw function and return normalized trials payload 
+    Search and normalize trials by condition
     """
     raw = search_trials_raw(condition, limit)
     studies = raw.get("studies", []) or []
     return [map_study_to_trial(s) for s in studies if isinstance(s, dict)]
+
+def search_trial_cards(condition: str, limit: int = 5, max_locations: int = 5) -> List[TrialCard]:
+    """
+    Search, normalize and summarize trials by condition
+    """
+    trials = search_trials(condition, limit) 
+    return [to_trial_card(t, max_locations=max_locations) for t in trials]
+
+def get_trial_raw(nct_id: str) -> Dict[str, Any]:
+    """
+    Fetch a single study from ClinicalTrials.gov by NCTID
+    """
+    url = BASE_API_URL + "/" + nct_id
+    resp = requests.get(url, timeout=20)
+    resp.raise_for_status()
+    return resp.json()
+
+def get_trial(nct_id: str) -> Trial:
+    """
+    Fetch and normalize a single trial by NCTID
+    """
+    raw = get_trial_raw(nct_id)
+    return map_study_to_trial(raw)
 
 def _get(d: Dict[str, Any], *path: str, default=None):
     cur: Any = d
@@ -90,6 +114,8 @@ def map_study_to_trial(study: Dict[str, Any]) -> Trial:
     phase = None
     if isinstance(phases, list) and phases:
         phase = phases[0]
+    if phase == "NA":
+        phase = None
     primary_purpose = design_mod.get("primaryPurpose")
     enrollment_count = None
     enrollment = design_mod.get("enrollmentInfo")
@@ -164,6 +190,7 @@ def map_study_to_trial(study: Dict[str, Any]) -> Trial:
                     city=loc.get("city"),
                     state=loc.get("state"),
                     country=loc.get("country"),
+                    status=loc.get("status")
                 )
             )
         locations = loc_objs or None
@@ -194,6 +221,7 @@ def map_study_to_trial(study: Dict[str, Any]) -> Trial:
         collaborators = names or None
     return Trial(
         nct_id=nct_id,
+        url = BASE_STUDY_URL + nct_id,
         brief_title=brief_title,
         official_title=official_title,
         conditions=conditions,
@@ -218,4 +246,21 @@ def map_study_to_trial(study: Dict[str, Any]) -> Trial:
         contacts=contacts,
         lead_sponsor=lead_sponsor,
         collaborators=collaborators,
+    )
+
+def to_trial_card(trial: Trial, max_locations: int = 5) -> TrialCard:
+    locs = trial.locations or []
+    loc_preview = locs[:max_locations] if locs else None
+    return TrialCard(
+        nct_id=trial.nct_id,
+        brief_title=trial.brief_title,
+        conditions=trial.conditions,
+        status=trial.status,
+        phase=trial.phase,
+        study_type=trial.study_type,
+        lead_sponsor=trial.lead_sponsor,
+        last_update_posted=trial.last_update_posted,
+        locations=loc_preview,
+        location_count=len(locs) if trial.locations is not None else None,
+        url=trial.url,
     )
