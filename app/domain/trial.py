@@ -2,7 +2,6 @@ from pydantic import BaseModel
 from typing import Optional, List
 from datetime import date
 
-
 class TrialLocation(BaseModel):
     facility: Optional[str]
     status: Optional[str]
