@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
@@ -31,7 +31,7 @@ class TrialSummary(BaseModel):
     """
     nct_id: str = Field(..., description="ClinicalTrials.gov NCT identifier.")
     source_url: str = Field(..., description="ClinicalTrials.gov study URL.")
-    generated_at: datetime = Field(default_factory=datetime.now(datetime.timezone.utc), description="UTC timestamp when this summary was generated.")
+    generated_at: datetime = Field(default=datetime.now(timezone.utc), description="UTC timestamp when this summary was generated.")
 
     plain_english_summary: str = Field(
         ...,
