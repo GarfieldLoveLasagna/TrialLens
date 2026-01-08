@@ -5,16 +5,15 @@ import requests
 from datetime import date
 from typing import Any, Dict, List, Optional
 from app.domain.trial import Trial, TrialCard, TrialLocation, TrialContact, TrialOutcome
+from app.core.config import settings
 
-BASE_API_URL = "https://clinicaltrials.gov/api/v2/studies"
-BASE_STUDY_URL = "https://clinicaltrials.gov/study/"
 
 def search_trials_raw(condition: str, limit: int = 5) -> Dict[str, Any]:
     """
     Search trials from ClinicalTrials.gov by condition
     """
     params = {"query.cond": condition, "pageSize": limit}
-    resp = requests.get(BASE_API_URL, params=params, timeout=20)
+    resp = requests.get(settings.clinical_trial_base_url, params=params, timeout=20)
     resp.raise_for_status()
     return resp.json()
 
@@ -37,7 +36,7 @@ def get_trial_raw(nct_id: str) -> Dict[str, Any]:
     """
     Fetch a single study from ClinicalTrials.gov by NCTID
     """
-    url = BASE_API_URL + "/" + nct_id
+    url = settings.clinical_trial_base_url + "/" + nct_id
     resp = requests.get(url, timeout=20)
     resp.raise_for_status()
     return resp.json()
@@ -222,7 +221,7 @@ def map_study_to_trial(study: Dict[str, Any]) -> Trial:
         collaborators = names or None
     return Trial(
         nct_id=nct_id,
-        url = BASE_STUDY_URL + nct_id,
+        url = settings.clinical_trial_get_study_url + "/" + nct_id,
         brief_title=brief_title,
         official_title=official_title,
         conditions=conditions,

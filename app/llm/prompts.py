@@ -52,9 +52,6 @@ Output rules (VERY IMPORTANT):
   "limitations": ["string", ...]
 }}
 
-Also include this sentence verbatim as the value of safety_disclaimer:
-"Informational only. This summary is based on publicly available ClinicalTrials.gov data and may be incomplete or outdated. It is not medical advice. Always discuss trial eligibility, risks, and benefits with a qualified healthcare professional and the study team."
-
 Metadata:
 - prompt_version: {PROMPT_VERSION}
 
