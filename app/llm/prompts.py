@@ -1,9 +1,7 @@
 import json
 from typing import Any, Dict
 
-
 PROMPT_VERSION = "v1.0"
-
 
 def build_summary_prompt(payload: Dict[str, Any]) -> str:
     """

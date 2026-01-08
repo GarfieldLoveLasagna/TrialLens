@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from app.llm.health import check_mistral_health
+
 router = APIRouter(prefix="", tags=["health"])
 
 @router.get("/health")

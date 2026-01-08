@@ -4,9 +4,9 @@ import requests
 #using request as clintrials is fingerprinting httpx
 from datetime import date
 from typing import Any, Dict, List, Optional
-from app.domain.trial import Trial, TrialCard, TrialLocation, TrialContact, TrialOutcome
-from app.core.config import settings
 
+from app.core.config import settings
+from app.domain.trial import Trial, TrialCard, TrialLocation, TrialContact, TrialOutcome
 
 def search_trials_raw(condition: str, limit: int = 5) -> Dict[str, Any]:
     """

@@ -1,6 +1,6 @@
 from typing import Any, Dict
-from app.domain.trial import Trial
 
+from app.domain.trial import Trial
 
 PAYLOAD_LOCATION_LIMIT = 10
 

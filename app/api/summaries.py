@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException, Path
 import json
+from fastapi import APIRouter, HTTPException, Path
+
 from app.domain.summary import TrialSummary
 from app.services.summaries import summarize_trial
 

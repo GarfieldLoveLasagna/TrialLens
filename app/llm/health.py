@@ -1,5 +1,6 @@
-from app.core.config import settings
 from mistralai import Mistral
+
+from app.core.config import settings
 
 def check_mistral_health() -> str:
     try:

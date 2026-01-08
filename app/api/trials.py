@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Query, HTTPException, Path
+import requests
+
 from app.services.clinicaltrials import search_trial_cards, get_trial
 from app.domain.trial import Trial
-import requests
 
 router = APIRouter(prefix="/trials", tags=["trials"])
 

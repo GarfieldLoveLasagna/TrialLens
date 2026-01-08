@@ -7,7 +7,6 @@ from app.services.clinicaltrials import get_trial
 from app.llm.input_builders import build_summary_input
 from app.llm.prompts import build_summary_prompt
 
-
 def summarize_trial(nct_id: str) -> TrialSummary:
     trial = get_trial(nct_id)
     payload = build_summary_input(trial)
