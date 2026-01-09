@@ -8,28 +8,28 @@ from typing import Any, Dict, List, Optional
 from app.core.config import settings
 from app.domain.trial import Trial, TrialCard, TrialLocation, TrialContact, TrialOutcome
 
-def search_trials_raw(condition: str, limit: int = 5) -> Dict[str, Any]:
+def search_trials_raw(condition: str, status: str, limit: int) -> Dict[str, Any]:
     """
     Search trials from ClinicalTrials.gov by condition
     """
-    params = {"query.cond": condition, "pageSize": limit}
+    params = {"query.cond": condition, "filter.overallStatus": status,"pageSize": limit}
     resp = requests.get(settings.clinical_trial_base_url, params=params, timeout=20)
     resp.raise_for_status()
     return resp.json()
 
-def search_trials(condition: str, limit: int = 5) -> List[Trial]:
+def search_trials(condition: str, status: str, limit: int) -> List[Trial]:
     """
     Search and normalize trials by condition
     """
-    raw = search_trials_raw(condition, limit)
+    raw = search_trials_raw(condition, status, limit)
     studies = raw.get("studies", []) or []
     return [map_study_to_trial(s) for s in studies if isinstance(s, dict)]
 
-def search_trial_cards(condition: str, limit: int = 5, max_locations: int = 5) -> List[TrialCard]:
+def search_trial_cards(condition: str, status: str, limit: int, max_locations: int = 20) -> List[TrialCard]:
     """
     Search, normalize and summarize trials by condition
     """
-    trials = search_trials(condition, limit) 
+    trials = search_trials(condition, status, limit) 
     return [to_trial_card(t, max_locations=max_locations) for t in trials]
 
 def get_trial_raw(nct_id: str) -> Dict[str, Any]:

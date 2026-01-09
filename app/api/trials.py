@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Query, HTTPException, Path
+from typing import Optional, List
 import requests
 
 from app.services.clinicaltrials import search_trial_cards, get_trial
@@ -7,8 +8,16 @@ from app.domain.trial import Trial
 router = APIRouter(prefix="/trials", tags=["trials"])
 
 @router.get("/search")
-async def search(condition: str = Query(...)):
-    return search_trial_cards(condition)
+async def search(
+    condition: str = Query(..., description="Condition or disease"),
+    status: Optional[List[str]] = Query(
+        None,
+        description="Trial overall status filter",
+        example=["RECRUITING", "NOT_YET_RECRUITING"],
+    ),
+    limit: int = Query(5, ge=1, le=50, description="Number of trials to return (1-50)"),
+):
+    return search_trial_cards(condition=condition, status=status, limit=limit)
 
 @router.get("/{nct_id}", response_model=Trial)
 def get_by_id(
